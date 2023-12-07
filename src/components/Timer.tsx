@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 type TimerProps = {
   initialTime: number;
@@ -10,49 +10,50 @@ type TimerProps = {
 
 const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive, onTimerFinish }) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
-  const [playCount, setPlayCount] = useState(0);
-  const timeLeftRef = useRef(timeLeft);
-  timeLeftRef.current = timeLeft; // Update ref value whenever timeLeft changes
 
   useEffect(() => {
-    if (isActive) {
-      setTimeLeft(initialTime);
-      setPlayCount(0);
+    if (!isActive) {
+      setTimeLeft(initialTime); // Reset the timer whenever it becomes inactive
+      return;
     }
-  }, [isActive, initialTime]);
 
-  useEffect(() => {
-    if (!isActive || timeLeft <= 0) return;
+    const interval = isActive && timeLeft > 0
+      ? setInterval(() => setTimeLeft(t => t - 1), 1000)
+      : null;
 
-    const interval = setInterval(() => {
-      setTimeLeft(t => t - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
-
-  useEffect(() => {
-    if (timeLeft === 0 && isActive) {
-      setPlayCount(triple ? 3 : 1);
-    }
-  }, [timeLeft, isActive, triple]);
-
-  useEffect(() => {
-    if (playCount > 0) {
+    const playSound = () => {
       const audio = new Audio(alarmSound);
       audio.play().then(() => {
-        setTimeout(() => setPlayCount(playCount - 1), 3500);
+        if (triple) {
+          let playCount = 1;
+          const interval = setInterval(() => {
+            playCount++;
+            audio.play();
+            if (playCount >= 3) {
+              clearInterval(interval);
+              onTimerFinish();
+            }
+          }, 3500);
+        } else {
+          onTimerFinish();
+        }
       }).catch(e => console.error('Error playing sound:', e));
-    } else if (playCount === 0 && timeLeftRef.current === 0) {
-      onTimerFinish();
-    }
-  }, [playCount, alarmSound, onTimerFinish]);
+    };
 
-  if (!isActive) return null;
+
+    if (timeLeft === 0) {
+      playSound(); // Play the sound when the countdown reaches zero
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, timeLeft, initialTime]);
+
 
   return (
     <div>
-      <p>Time Left: {timeLeft} seconds</p>
+      <p>Time Left: {isActive ? timeLeft : initialTime} seconds</p>
     </div>
   );
 };
