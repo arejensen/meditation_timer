@@ -1,15 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 type TimerProps = {
+  initialTime: number;
+  triple: boolean;
   alarmSound: string;
+  isActive: boolean;
+  onTimerFinish: () => void;
 };
 
-const Timer: React.FC<TimerProps> = ({ alarmSound }) => {
-  const [initialTime, setInitialTime] = useState<number>(60);
-  const [timeLeft, setTimeLeft] = useState<number>(initialTime);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [triple, setTriple] = useState<boolean>(false);
-  const [playCount, setPlayCount] = useState<number>(0);
+const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive, onTimerFinish }) => {
+  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [playCount, setPlayCount] = useState(0);
+  const timeLeftRef = useRef(timeLeft);
+  timeLeftRef.current = timeLeft; // Update ref value whenever timeLeft changes
+
+  useEffect(() => {
+    if (isActive) {
+      setTimeLeft(initialTime);
+      setPlayCount(0);
+    }
+  }, [isActive, initialTime]);
+
+  useEffect(() => {
+    if (!isActive || timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft(t => t - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isActive, timeLeft]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && isActive) {
+      setPlayCount(triple ? 3 : 1);
+    }
+  }, [timeLeft, isActive, triple]);
 
   useEffect(() => {
     if (playCount > 0) {
@@ -17,63 +43,16 @@ const Timer: React.FC<TimerProps> = ({ alarmSound }) => {
       audio.play().then(() => {
         setTimeout(() => setPlayCount(playCount - 1), 3500);
       }).catch(e => console.error('Error playing sound:', e));
+    } else if (playCount === 0 && timeLeftRef.current === 0) {
+      onTimerFinish();
     }
-  }, [playCount, alarmSound]);
+  }, [playCount, alarmSound, onTimerFinish]);
 
-  const playSound = useCallback(() => {
-    setPlayCount(triple ? 3 : 1);
-  }, [triple]);
-
-  useEffect(() => {
-    let intervalId: number;
-
-    if (isRunning && timeLeft > 0) {
-      intervalId = window.setInterval(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && isRunning) {
-      setIsRunning(false);
-      playSound();
-    }
-
-    return () => clearInterval(intervalId);
-  }, [timeLeft, isRunning, playSound]);
-
-  const handleStart = () => {
-    setTimeLeft(initialTime);
-    setIsRunning(true);
-    setPlayCount(0);
-  };
-
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInitialTime(Math.max(0, Number(event.target.value)));
-  };
-
-  const handleTripleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTriple(event.target.checked);
-  };
+  if (!isActive) return null;
 
   return (
     <div>
       <p>Time Left: {timeLeft} seconds</p>
-      <input 
-        type="number" 
-        value={initialTime} 
-        onChange={handleTimeChange} 
-        disabled={isRunning} 
-      />
-      <label>
-        <input 
-          type="checkbox" 
-          checked={triple} 
-          onChange={handleTripleChange} 
-          disabled={isRunning} 
-        />
-        Play Sound Triple
-      </label>
-      <button onClick={handleStart} disabled={isRunning}>
-        Start Timer
-      </button>
     </div>
   );
 };
