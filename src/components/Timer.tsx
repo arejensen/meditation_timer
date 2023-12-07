@@ -22,24 +22,29 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
       : null;
 
     const playSound = () => {
-      const audio = new Audio(alarmSound);
-      audio.play().then(() => {
-        if (triple) {
-          let playCount = 1;
-          const interval = setInterval(() => {
-            playCount++;
-            audio.play();
-            if (playCount >= 3) {
-              clearInterval(interval);
-              onTimerFinish();
-            }
-          }, 3500);
-        } else {
-          onTimerFinish();
-        }
-      }).catch(e => console.error('Error playing sound:', e));
-    };
+      if (triple) {
+        let playCount = 0;
 
+        const playInterval = () => {
+          if (playCount < 3) {
+            const audio = new Audio(alarmSound); // audio source each time due to missing sound when reusing
+            audio.play().catch(e => console.error('Error playing sound:', e));
+            playCount++;
+          } else {
+            clearInterval(interval);
+            onTimerFinish();
+          }
+        };
+
+        const interval = setInterval(playInterval, 3500);
+        playInterval(); // Play the first sound immediately
+      } else {
+        const audio = new Audio(alarmSound);
+        audio.play().then(() => {
+          onTimerFinish();
+        }).catch(e => console.error('Error playing sound:', e));
+      }
+    };
 
     if (timeLeft === 0) {
       playSound(); // Play the sound when the countdown reaches zero
