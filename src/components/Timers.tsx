@@ -5,7 +5,12 @@ const DefaultTimerLength = 600;
 
 const Timers = () => {
   const [timers, setTimers] = useState([
-    { id: 1, initialTime: DefaultTimerLength, triple: false, displayTime: DefaultTimerLength },
+    {
+      id: 1,
+      initialTime: DefaultTimerLength,
+      triple: false,
+      displayTime: DefaultTimerLength,
+    },
   ]);
   const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null);
   const [paused, setPaused] = useState<boolean>(false);
@@ -46,6 +51,7 @@ const Timers = () => {
 
   const stopSequence = () => {
     setActiveTimerIndex(null);
+    setPaused(false);
     setTimers(
       timers.map((timer) => ({ ...timer, displayTime: timer.initialTime }))
     );
@@ -103,6 +109,10 @@ const Timers = () => {
           : timer
       )
     );
+  };
+
+  const totalTimeLeft = () => {
+    return timers.reduce((total, timer) => total + timer.displayTime, 0);
   };
 
   return (
@@ -167,6 +177,13 @@ const Timers = () => {
               {paused ? "Resume" : "Pause"} Sequence
             </button>
           </>
+        )}
+      </div>
+      <div>
+        {activeTimerIndex !== null && (
+          <p className="timer-counter">
+            Total time left is: {totalTimeLeft()}
+          </p>
         )}
       </div>
     </div>

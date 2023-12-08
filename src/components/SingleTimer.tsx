@@ -49,6 +49,7 @@ const Timer: React.FC<TimerProps> = ({
   }, [triple, onTimerFinish]);
 
   useEffect(() => {
+    if (paused) return;
     if (!isActive) {
       setTimeLeftState(initialTime);
       return;

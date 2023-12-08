@@ -75,6 +75,13 @@ button:focus-visible {
   gap: 10px;
 }
 
+.timer-counter {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .timer {
   margin: 5px;
   padding: 10px;
