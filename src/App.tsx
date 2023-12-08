@@ -26,33 +26,27 @@ const App = () => {
     );
   };
 
-  const resetDisplayTime = (id: number) => {
-    setTimers(
-      timers.map((timer) =>
-        timer.id === id ? { ...timer, displayTime: timer.initialTime } : timer
-      )
-    );
-  };
+const handleTimerFinish = () => {
+  setActiveTimerIndex((prevIndex) => {
+    if (prevIndex !== null && prevIndex < timers.length - 1) {
+      return prevIndex + 1;
+    } else {
+      checkAndResetTimersIfSequenceCompleted();
+      return null;
+    }
+  });
+};
 
-  const handleTimerFinish = () => {
-    setActiveTimerIndex((prevIndex) => {
-      // Check if the current timer is the last one
-      const isLastTimer = prevIndex === timers.length - 1;
-
-      if (isLastTimer) {
-        // Reset displayTime for all timers
-        setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
-        return null; // Reset the active timer index
-      } else {
-        // Move to the next timer
-        return prevIndex !== null ? prevIndex + 1 : null;
-      }
-    });
-  };
+const checkAndResetTimersIfSequenceCompleted = () => {
+  if (activeTimerIndex === timers.length - 1) {
+    // Reset all timers
+    setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
+  }
+};
 
   const stopSequence = () => {
     setActiveTimerIndex(null);
-    timers.forEach(timer => resetDisplayTime(timer.id));
+    setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
   };
 
   const addTimer = () => {
@@ -82,73 +76,73 @@ const App = () => {
     setPaused(!paused);
   };
 
-  return (
-    <div className="App">
-      {timers.map((timer, index) => (
-        <div key={timer.id} className="timer-container">
-          <Timer
-            alarmSound={alarmSound}
-            isActive={index === activeTimerIndex}
-            onTimerFinish={handleTimerFinish}
-            initialTime={timer.initialTime}
-            triple={timer.triple}
-            paused={paused}
-            updateDisplayTime={(time) => updateDisplayTime(timer.id, time)}
+  const handleInitialTimeChange = (id: number, newTime: number) => {
+    setTimers(
+      timers.map(timer =>
+        timer.id === id ? { ...timer, initialTime: Math.max(1, newTime) } : timer
+      )
+    );
+  };
+
+return (
+  <div className="App">
+    {timers.map((timer, index) => (
+      <div key={timer.id} className="timer-container">
+        <Timer
+          alarmSound={alarmSound}
+          isActive={index === activeTimerIndex}
+          onTimerFinish={handleTimerFinish}
+          initialTime={timer.initialTime}
+          triple={timer.triple}
+          paused={paused}
+          updateDisplayTime={(time) => updateDisplayTime(timer.id, time)}
+        />
+        <div className="timer-config">
+          <input
+            type="number"
+            min="1"
+            value={activeTimerIndex !== null ? timer.displayTime : timer.initialTime}
+            onChange={(e) => handleInitialTimeChange(timer.id, Number(e.target.value))}
+            disabled={activeTimerIndex !== null}
           />
-          <div className="timer-config">
+          <label>
             <input
-              type="number"
-              min="1"
-              value={timer.displayTime}
-              onChange={(e) =>
-                updateTimerConfig(
-                  timer.id,
-                  "initialTime",
-                  Math.max(1, Number(e.target.value))
-                )
-              }
+              type="checkbox"
+              checked={timer.triple}
+              onChange={(e) => updateTimerConfig(timer.id, "triple", e.target.checked)}
               disabled={activeTimerIndex !== null}
             />
-            <label>
-              <input
-                type="checkbox"
-                checked={timer.triple}
-                onChange={(e) =>
-                  updateTimerConfig(timer.id, "triple", e.target.checked)
-                }
-                disabled={activeTimerIndex !== null}
-              />
-              Triple
-            </label>
-            {timers.length > 1 && activeTimerIndex === null && (
-              <button
-                onClick={() => removeTimer(timer.id)}
-                disabled={activeTimerIndex !== null || timers.length <= 1}
-              >
-                Remove Timer
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
-      <div className="timer-controls">
-        {activeTimerIndex === null && (
-          <>
-            <button onClick={addTimer}>Add New Timer</button>
-            <button onClick={startSequence}>Start Sequence</button>
-          </>
-        )}
-        {activeTimerIndex !== null && (
-          <>
-            <button onClick={stopSequence}>Stop Sequence</button>
-            <button onClick={pauseSequence}>
-              {paused ? "Resume" : "Pause"} Sequence
+            Triple
+          </label>
+          {timers.length > 1 && (
+            <button
+              onClick={() => removeTimer(timer.id)}
+              disabled={activeTimerIndex !== null}
+            >
+              Remove Timer
             </button>
-          </>
-        )}
+          )}
+        </div>
       </div>
+    ))}
+    <div className="timer-controls">
+      {activeTimerIndex === null && (
+        <>
+          <button onClick={addTimer}>Add New Timer</button>
+          <button onClick={startSequence}>Start Sequence</button>
+        </>
+      )}
+      {activeTimerIndex !== null && (
+        <>
+          <button onClick={stopSequence}>Stop Sequence</button>
+          <button onClick={pauseSequence}>
+            {paused ? "Resume" : "Pause"} Sequence
+          </button>
+        </>
+      )}
     </div>
-  );
+  </div>
+);
 };
 
 export default App;

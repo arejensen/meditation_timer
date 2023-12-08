@@ -27,8 +27,9 @@ const Timer: React.FC<TimerProps> = ({
       audio.play().catch((e) => console.error("Error playing sound:", e));
     };
 
+    soundPlayHandler();
     if (triple) {
-      let playCount = 0;
+      let playCount = 1;
 
       const playInterval = setInterval(() => {
         if (playCount < 3) {
@@ -42,7 +43,6 @@ const Timer: React.FC<TimerProps> = ({
 
       soundPlayHandler();
     } else {
-      soundPlayHandler();
       onTimerFinish();
     }
   }, [alarmSound, triple, onTimerFinish]);
