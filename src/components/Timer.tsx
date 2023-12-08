@@ -6,6 +6,7 @@ type TimerProps = {
   alarmSound: string;
   isActive: boolean;
   paused: boolean;
+  updateDisplayTime: (time: number) => void;
   onTimerFinish: () => void;
 };
 
@@ -15,49 +16,50 @@ const Timer: React.FC<TimerProps> = ({
   alarmSound,
   isActive,
   paused,
+  updateDisplayTime,
   onTimerFinish,
 }) => {
-  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [timeLeft, setTimeLeftState] = useState(initialTime);
 
   const playSound = useCallback(() => {
+    const soundPlayHandler = () => {
+      const audio = new Audio(alarmSound);
+      audio.play().catch((e) => console.error("Error playing sound:", e));
+    };
+
     if (triple) {
       let playCount = 0;
 
-      const playInterval = () => {
+      const playInterval = setInterval(() => {
         if (playCount < 3) {
-          const audio = new Audio(alarmSound);
-          audio.play().catch((e) => console.error("Error playing sound:", e));
+          soundPlayHandler();
           playCount++;
         } else {
-          clearInterval(interval);
+          clearInterval(playInterval);
           onTimerFinish();
         }
-      };
+      }, 3500);
 
-      const interval = setInterval(playInterval, 3500);
-      playInterval();
+      soundPlayHandler();
     } else {
-      const audio = new Audio(alarmSound);
-      audio
-        .play()
-        .then(() => {
-          onTimerFinish();
-        })
-        .catch((e) => console.error("Error playing sound:", e));
+      soundPlayHandler();
+      onTimerFinish();
     }
   }, [alarmSound, triple, onTimerFinish]);
 
   useEffect(() => {
-    if (paused) return;
-    if (!isActive) {
-      setTimeLeft(initialTime);
+    if (paused || !isActive) {
+      setTimeLeftState(initialTime);
       return;
     }
 
-    const interval =
-      isActive && timeLeft > 0
-        ? setInterval(() => setTimeLeft((t) => t - 1), 1000)
-        : null;
+    const interval = timeLeft > 0
+      ? setInterval(() => {
+          const newTime = timeLeft - 1;
+          setTimeLeftState(newTime);
+          updateDisplayTime(newTime);
+        }, 1000)
+      : null;
 
     if (timeLeft === 0) {
       playSound();
@@ -66,17 +68,9 @@ const Timer: React.FC<TimerProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [paused, isActive, timeLeft, initialTime, playSound]);
+  }, [paused, isActive, timeLeft, initialTime, playSound, updateDisplayTime]);
 
-  return (
-    <>
-      {isActive && (
-        <div>
-          <p>Time Left: {timeLeft} seconds</p>
-        </div>
-      )}
-    </>
-  );
+  return null;  // Or your desired JSX
 };
 
 export default Timer;

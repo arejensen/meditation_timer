@@ -4,31 +4,60 @@ import alarmSound from "./assets/gong.mp3";
 
 const App = () => {
   const [timers, setTimers] = useState([
-    { id: 1, initialTime: 2, triple: false },
-    { id: 2, initialTime: 2, triple: false },
-    { id: 3, initialTime: 2, triple: false },
-    { id: 4, initialTime: 2, triple: true },
+    { id: 1, initialTime: 2, triple: false, displayTime: 2 },
+    { id: 2, initialTime: 2, triple: false, displayTime: 2 },
+    { id: 3, initialTime: 2, triple: false, displayTime: 2 },
+    { id: 4, initialTime: 2, triple: true, displayTime: 2 },
   ]);
   const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null);
   const [paused, setPaused] = useState<boolean>(false);
 
   const startSequence = () => {
+    // Reset displayTime to initialTime for all timers before starting
+    setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
     setActiveTimerIndex(0);
   };
 
-  const handleTimerFinish = () => {
-    setActiveTimerIndex((prevIndex) =>
-      prevIndex !== null && prevIndex < timers.length - 1 ? prevIndex + 1 : null
+  const updateDisplayTime = (id: number, time: number) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id ? { ...timer, displayTime: time } : timer
+      )
     );
+  };
+
+  const resetDisplayTime = (id: number) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id ? { ...timer, displayTime: timer.initialTime } : timer
+      )
+    );
+  };
+
+  const handleTimerFinish = () => {
+    setActiveTimerIndex((prevIndex) => {
+      // Check if the current timer is the last one
+      const isLastTimer = prevIndex === timers.length - 1;
+
+      if (isLastTimer) {
+        // Reset displayTime for all timers
+        setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
+        return null; // Reset the active timer index
+      } else {
+        // Move to the next timer
+        return prevIndex !== null ? prevIndex + 1 : null;
+      }
+    });
   };
 
   const stopSequence = () => {
     setActiveTimerIndex(null);
+    timers.forEach(timer => resetDisplayTime(timer.id));
   };
 
   const addTimer = () => {
     const newId = Math.max(0, ...timers.map((timer) => timer.id)) + 1;
-    setTimers([...timers, { id: newId, initialTime: 60, triple: false }]);
+    setTimers([...timers, { id: newId, initialTime: 60, triple: false, displayTime: 60 }]);
   };
 
   const updateTimerConfig = (
@@ -64,12 +93,13 @@ const App = () => {
             initialTime={timer.initialTime}
             triple={timer.triple}
             paused={paused}
+            updateDisplayTime={(time) => updateDisplayTime(timer.id, time)}
           />
           <div className="timer-config">
             <input
               type="number"
               min="1"
-              value={timer.initialTime}
+              value={timer.displayTime}
               onChange={(e) =>
                 updateTimerConfig(
                   timer.id,
