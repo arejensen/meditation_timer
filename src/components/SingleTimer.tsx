@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
+import alarmSound from "../assets/gong.mp3";
 
 type TimerProps = {
   initialTime: number;
   triple: boolean;
-  alarmSound: string;
   isActive: boolean;
   paused: boolean;
   updateDisplayTime: (time: number) => void;
@@ -13,7 +13,6 @@ type TimerProps = {
 const Timer: React.FC<TimerProps> = ({
   initialTime,
   triple,
-  alarmSound,
   isActive,
   paused,
   updateDisplayTime,
@@ -22,12 +21,13 @@ const Timer: React.FC<TimerProps> = ({
   const [timeLeft, setTimeLeftState] = useState(initialTime);
 
   const playSound = useCallback(() => {
+
     const soundPlayHandler = () => {
       const audio = new Audio(alarmSound);
+      audio.preload = "auto";
       audio.play().catch((e) => console.error("Error playing sound:", e));
     };
 
-    soundPlayHandler();
     if (triple) {
       let playCount = 1;
 
@@ -39,13 +39,14 @@ const Timer: React.FC<TimerProps> = ({
           clearInterval(playInterval);
           onTimerFinish();
         }
-      }, 3500);
+      }, 5000);
 
       soundPlayHandler();
     } else {
+      soundPlayHandler();
       onTimerFinish();
     }
-  }, [alarmSound, triple, onTimerFinish]);
+  }, [triple, onTimerFinish]);
 
   useEffect(() => {
     if (paused || !isActive) {
@@ -53,13 +54,14 @@ const Timer: React.FC<TimerProps> = ({
       return;
     }
 
-    const interval = timeLeft > 0
-      ? setInterval(() => {
-          const newTime = timeLeft - 1;
-          setTimeLeftState(newTime);
-          updateDisplayTime(newTime);
-        }, 1000)
-      : null;
+    const interval =
+      timeLeft > 0
+        ? setInterval(() => {
+            const newTime = timeLeft - 1;
+            setTimeLeftState(newTime);
+            updateDisplayTime(newTime);
+          }, 1000)
+        : null;
 
     if (timeLeft === 0) {
       playSound();

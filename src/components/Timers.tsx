@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Timer from "./SingleTimer";
-import alarmSound from "../assets/gong.mp3";
 
 const DefaultTimerLength = 600;
 
@@ -111,7 +110,6 @@ const Timers = () => {
       {timers.map((timer, index) => (
         <div key={timer.id} className="timer-container">
           <Timer
-            alarmSound={alarmSound}
             isActive={index === activeTimerIndex}
             onTimerFinish={handleTimerFinish}
             initialTime={timer.initialTime}
