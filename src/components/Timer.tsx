@@ -56,9 +56,13 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
   }, [isActive, timeLeft, initialTime, playSound]); 
 
   return (
-    <div>
-      <p>Time Left: {isActive ? timeLeft : initialTime} seconds</p>
-    </div>
+    <>
+      {isActive && (
+        <div>
+          <p>Time Left: {timeLeft} seconds</p>
+        </div>
+      )}
+    </>
   );
 };
 
