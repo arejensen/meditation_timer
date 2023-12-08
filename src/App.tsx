@@ -31,9 +31,11 @@ const App = () => {
   };
 
   const removeTimer = (id: number) => {
-    setTimers(timers.filter(timer => timer.id !== id));
-    if (timers.length === 1) {
-      setActiveTimerIndex(null);
+    if (timers.length !== 1) {
+      setTimers(timers.filter(timer => timer.id !== id));
+      if (timers.length === 1) {
+        setActiveTimerIndex(null);
+      }
     }
   };
 
@@ -66,7 +68,11 @@ const App = () => {
               Triple
             </label>
           </div>
-          <button onClick={() => removeTimer(timer.id)} disabled={activeTimerIndex !== null}>Remove Timer</button>
+          <>
+            {timers.length > 1 && (
+              <button onClick={() => removeTimer(timer.id)} disabled={activeTimerIndex !== null}>Remove Timer</button>
+            )}
+          </>
         </div>
       ))}
       <button onClick={addTimer} disabled={activeTimerIndex !== null}>Add New Timer</button>
