@@ -8,7 +8,6 @@ const App = () => {
     { id: 2, initialTime: 2, triple: false },
     { id: 3, initialTime: 2, triple: false },
     { id: 4, initialTime: 2, triple: true },
-    // ...additional timers
   ]);
   const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null);
 
@@ -31,6 +30,13 @@ const App = () => {
     setTimers(timers.map(timer => timer.id === id ? { ...timer, [field]: value } : timer));
   };
 
+  const removeTimer = (id: number) => {
+    setTimers(timers.filter(timer => timer.id !== id));
+    if (timers.length === 1) {
+      setActiveTimerIndex(null);
+    }
+  };
+
   return (
     <div className="App">
       {timers.map((timer, index) => (
@@ -44,9 +50,9 @@ const App = () => {
           />
           <div>
             <input 
-              type="number"
-              min="1"
-              value={timer.initialTime}
+              type="number" 
+              min="1" 
+              value={timer.initialTime} 
               onChange={(e) => updateTimerConfig(timer.id, 'initialTime', Math.max(1, Number(e.target.value)))}
               disabled={activeTimerIndex !== null}
             />
@@ -60,6 +66,7 @@ const App = () => {
               Triple
             </label>
           </div>
+          <button onClick={() => removeTimer(timer.id)} disabled={activeTimerIndex !== null}>Remove Timer</button>
         </div>
       ))}
       <button onClick={addTimer} disabled={activeTimerIndex !== null}>Add New Timer</button>

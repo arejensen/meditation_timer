@@ -47,7 +47,7 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
       : null;
 
     if (timeLeft === 0) {
-      playSound(); // Play the sound when the countdown reaches zero
+      playSound();
     }
 
     return () => {
