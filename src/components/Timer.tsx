@@ -5,6 +5,7 @@ type TimerProps = {
   triple: boolean;
   alarmSound: string;
   isActive: boolean;
+  paused: boolean;
   onTimerFinish: () => void;
 };
 
@@ -13,6 +14,7 @@ const Timer: React.FC<TimerProps> = ({
   triple,
   alarmSound,
   isActive,
+  paused,
   onTimerFinish,
 }) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
@@ -46,6 +48,7 @@ const Timer: React.FC<TimerProps> = ({
   }, [alarmSound, triple, onTimerFinish]);
 
   useEffect(() => {
+    if (paused) return;
     if (!isActive) {
       setTimeLeft(initialTime);
       return;
@@ -63,7 +66,7 @@ const Timer: React.FC<TimerProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, initialTime, playSound]);
+  }, [paused, isActive, timeLeft, initialTime, playSound]);
 
   return (
     <>

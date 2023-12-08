@@ -8,9 +8,9 @@ const App = () => {
     { id: 2, initialTime: 2, triple: false },
     { id: 3, initialTime: 2, triple: false },
     { id: 4, initialTime: 2, triple: true },
-    // ...additional timers
   ]);
   const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null);
+  const [paused, setPaused] = useState<boolean>(false);
 
   const startSequence = () => {
     setActiveTimerIndex(0);
@@ -49,6 +49,10 @@ const App = () => {
     }
   };
 
+  const pauseSequence = () => {
+    setPaused(!paused);
+  };
+
   return (
     <div className="App">
       {timers.map((timer, index) => (
@@ -59,6 +63,7 @@ const App = () => {
             onTimerFinish={handleTimerFinish}
             initialTime={timer.initialTime}
             triple={timer.triple}
+            paused={paused}
           />
           <div>
             <input
@@ -87,7 +92,7 @@ const App = () => {
             </label>
           </div>
           <>
-            {timers.length > 1 && (
+            {timers.length > 1 && activeTimerIndex === null && (
               <button
                 onClick={() => removeTimer(timer.id)}
                 disabled={activeTimerIndex !== null || timers.length <= 1}
@@ -99,13 +104,20 @@ const App = () => {
         </div>
       ))}
       <div>
-        <button onClick={addTimer}>Add New Timer</button>
-        <button onClick={startSequence} disabled={activeTimerIndex !== null}>
-          Start Sequence
-        </button>
-        <button onClick={stopSequence} disabled={activeTimerIndex === null}>
-          Stop Sequence
-        </button>
+        {activeTimerIndex === null && (
+          <>
+            <button onClick={addTimer}>Add New Timer</button>
+            <button onClick={startSequence}>Start Sequence</button>
+          </>
+        )}
+        {activeTimerIndex !== null && (
+          <>
+            <button onClick={stopSequence}>Stop Sequence</button>
+            <button onClick={pauseSequence}>
+              {paused ? "Resume" : "Pause"} Sequence
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
