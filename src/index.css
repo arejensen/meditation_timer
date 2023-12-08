@@ -69,6 +69,12 @@ button:focus-visible {
   margin-top: 10px;
 }
 
+.timer-config {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .timer {
   margin: 5px;
   padding: 10px;

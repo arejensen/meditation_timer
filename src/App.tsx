@@ -56,7 +56,7 @@ const App = () => {
   return (
     <div className="App">
       {timers.map((timer, index) => (
-        <div key={timer.id}>
+        <div key={timer.id} className="timer-container">
           <Timer
             alarmSound={alarmSound}
             isActive={index === activeTimerIndex}
@@ -65,7 +65,7 @@ const App = () => {
             triple={timer.triple}
             paused={paused}
           />
-          <div>
+          <div className="timer-config">
             <input
               type="number"
               min="1"
@@ -90,8 +90,6 @@ const App = () => {
               />
               Triple
             </label>
-          </div>
-          <>
             {timers.length > 1 && activeTimerIndex === null && (
               <button
                 onClick={() => removeTimer(timer.id)}
@@ -100,10 +98,10 @@ const App = () => {
                 Remove Timer
               </button>
             )}
-          </>
+          </div>
         </div>
       ))}
-      <div>
+      <div className="timer-controls">
         {activeTimerIndex === null && (
           <>
             <button onClick={addTimer}>Add New Timer</button>
