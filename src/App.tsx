@@ -31,7 +31,7 @@ const App = () => {
   };
 
   const removeTimer = (id: number) => {
-    if (timers.length !== 1) {
+    if (timers.length >= 1) {
       setTimers(timers.filter(timer => timer.id !== id));
       if (timers.length === 1) {
         setActiveTimerIndex(null);
