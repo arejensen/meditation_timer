@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 
 type TimerProps = {
   initialTime: number;
@@ -8,7 +8,13 @@ type TimerProps = {
   onTimerFinish: () => void;
 };
 
-const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive, onTimerFinish }) => {
+const Timer: React.FC<TimerProps> = ({
+  initialTime,
+  triple,
+  alarmSound,
+  isActive,
+  onTimerFinish,
+}) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
   const playSound = useCallback(() => {
@@ -18,7 +24,7 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
       const playInterval = () => {
         if (playCount < 3) {
           const audio = new Audio(alarmSound);
-          audio.play().catch(e => console.error('Error playing sound:', e));
+          audio.play().catch((e) => console.error("Error playing sound:", e));
           playCount++;
         } else {
           clearInterval(interval);
@@ -30,9 +36,12 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
       playInterval();
     } else {
       const audio = new Audio(alarmSound);
-      audio.play().then(() => {
-        onTimerFinish();
-      }).catch(e => console.error('Error playing sound:', e));
+      audio
+        .play()
+        .then(() => {
+          onTimerFinish();
+        })
+        .catch((e) => console.error("Error playing sound:", e));
     }
   }, [alarmSound, triple, onTimerFinish]);
 
@@ -42,9 +51,10 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
       return;
     }
 
-    const interval = isActive && timeLeft > 0
-      ? setInterval(() => setTimeLeft(t => t - 1), 1000)
-      : null;
+    const interval =
+      isActive && timeLeft > 0
+        ? setInterval(() => setTimeLeft((t) => t - 1), 1000)
+        : null;
 
     if (timeLeft === 0) {
       playSound();
@@ -53,7 +63,7 @@ const Timer: React.FC<TimerProps> = ({ initialTime, triple, alarmSound, isActive
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, timeLeft, initialTime, playSound]); 
+  }, [isActive, timeLeft, initialTime, playSound]);
 
   return (
     <>

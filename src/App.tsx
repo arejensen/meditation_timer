@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import Timer from './components/Timer';
-import alarmSound from './assets/gong.mp3';
+import React, { useState } from "react";
+import Timer from "./components/Timer";
+import alarmSound from "./assets/gong.mp3";
 
 const App = () => {
   const [timers, setTimers] = useState([
@@ -8,6 +8,7 @@ const App = () => {
     { id: 2, initialTime: 2, triple: false },
     { id: 3, initialTime: 2, triple: false },
     { id: 4, initialTime: 2, triple: true },
+    // ...additional timers
   ]);
   const [activeTimerIndex, setActiveTimerIndex] = useState<number | null>(null);
 
@@ -16,26 +17,35 @@ const App = () => {
   };
 
   const handleTimerFinish = () => {
-    setActiveTimerIndex(prevIndex => 
+    setActiveTimerIndex((prevIndex) =>
       prevIndex !== null && prevIndex < timers.length - 1 ? prevIndex + 1 : null
     );
   };
 
+  const stopSequence = () => {
+    setActiveTimerIndex(null);
+  };
+
   const addTimer = () => {
-    const newId = Math.max(0, ...timers.map(timer => timer.id)) + 1;
+    const newId = Math.max(0, ...timers.map((timer) => timer.id)) + 1;
     setTimers([...timers, { id: newId, initialTime: 60, triple: false }]);
   };
 
-  const updateTimerConfig = (id: number, field: keyof typeof timers[0], value: number | boolean) => {
-    setTimers(timers.map(timer => timer.id === id ? { ...timer, [field]: value } : timer));
+  const updateTimerConfig = (
+    id: number,
+    field: keyof (typeof timers)[0],
+    value: number | boolean
+  ) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id ? { ...timer, [field]: value } : timer
+      )
+    );
   };
 
   const removeTimer = (id: number) => {
-    if (timers.length >= 1) {
-      setTimers(timers.filter(timer => timer.id !== id));
-      if (timers.length === 1) {
-        setActiveTimerIndex(null);
-      }
+    if (timers.length > 1) {
+      setTimers(timers.filter((timer) => timer.id !== id));
     }
   };
 
@@ -51,18 +61,26 @@ const App = () => {
             triple={timer.triple}
           />
           <div>
-            <input 
-              type="number" 
-              min="1" 
-              value={timer.initialTime} 
-              onChange={(e) => updateTimerConfig(timer.id, 'initialTime', Math.max(1, Number(e.target.value)))}
+            <input
+              type="number"
+              min="1"
+              value={timer.initialTime}
+              onChange={(e) =>
+                updateTimerConfig(
+                  timer.id,
+                  "initialTime",
+                  Math.max(1, Number(e.target.value))
+                )
+              }
               disabled={activeTimerIndex !== null}
             />
             <label>
-              <input 
+              <input
                 type="checkbox"
                 checked={timer.triple}
-                onChange={(e) => updateTimerConfig(timer.id, 'triple', e.target.checked)}
+                onChange={(e) =>
+                  updateTimerConfig(timer.id, "triple", e.target.checked)
+                }
                 disabled={activeTimerIndex !== null}
               />
               Triple
@@ -70,13 +88,25 @@ const App = () => {
           </div>
           <>
             {timers.length > 1 && (
-              <button onClick={() => removeTimer(timer.id)} disabled={activeTimerIndex !== null}>Remove Timer</button>
+              <button
+                onClick={() => removeTimer(timer.id)}
+                disabled={activeTimerIndex !== null || timers.length <= 1}
+              >
+                Remove Timer
+              </button>
             )}
           </>
         </div>
       ))}
-      <button onClick={addTimer} disabled={activeTimerIndex !== null}>Add New Timer</button>
-      <button onClick={startSequence} disabled={activeTimerIndex !== null}>Start Sequence</button>
+      <div>
+        <button onClick={addTimer}>Add New Timer</button>
+        <button onClick={startSequence} disabled={activeTimerIndex !== null}>
+          Start Sequence
+        </button>
+        <button onClick={stopSequence} disabled={activeTimerIndex === null}>
+          Stop Sequence
+        </button>
+      </div>
     </div>
   );
 };
