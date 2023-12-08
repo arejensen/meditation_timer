@@ -70,7 +70,7 @@ const Timer: React.FC<TimerProps> = ({
     };
   }, [paused, isActive, timeLeft, initialTime, playSound, updateDisplayTime]);
 
-  return null;  // Or your desired JSX
+  return null;
 };
 
 export default Timer;

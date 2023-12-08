@@ -39,7 +39,6 @@ const handleTimerFinish = () => {
 
 const checkAndResetTimersIfSequenceCompleted = () => {
   if (activeTimerIndex === timers.length - 1) {
-    // Reset all timers
     setTimers(timers.map(timer => ({ ...timer, displayTime: timer.initialTime })));
   }
 };
